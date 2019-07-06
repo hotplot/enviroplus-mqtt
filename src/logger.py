@@ -6,9 +6,9 @@ from enviroplus import gas
 
 
 class EnvLogger:
-    def __init__(self, client_id, host, port, username, password, prefix):
+    def __init__(self, client_id, host, port, username, password, prefix, use_pms5003):
         self.bme280 = BME280()
-        self.pms5003 = PMS5003()
+        self.pms5003 = use_pms5003 and PMS5003() or None
 
         self.prefix = prefix
 
@@ -32,9 +32,10 @@ class EnvLogger:
         self.publish("gas/reducing", gas_data.reducing)
         self.publish("gas/nh3", gas_data.nh3)
 
-        pm_data = self.pms5003.read()
-        self.publish("particulate/1.0", pm_data.pm_ug_per_m3(1.0))
-        self.publish("particulate/2.5", pm_data.pm_ug_per_m3(2.5))
-        self.publish("particulate/10.0", pm_data.pm_ug_per_m3(10))
+        if self.pms5003 is not None:
+            pm_data = self.pms5003.read()
+            self.publish("particulate/1.0", pm_data.pm_ug_per_m3(1.0))
+            self.publish("particulate/2.5", pm_data.pm_ug_per_m3(2.5))
+            self.publish("particulate/10.0", pm_data.pm_ug_per_m3(10))
 
         self.client.loop()
