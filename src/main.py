@@ -9,8 +9,9 @@ def parse_args():
     ap.add_argument("-p", "--port", type=int, default=1883, help="the port on the MQTT host to connect to")
     ap.add_argument("-U", "--username", default=None, help="the MQTT username to connect with")
     ap.add_argument("-P", "--password", default=None, help="the password to connect with")
-    ap.add_argument("-t", "--prefix", default="", help="the topic prefix to use when publishing readings, i.e. 'lounge/enviroplus'")
+    ap.add_argument("--prefix", default="", help="the topic prefix to use when publishing readings, i.e. 'lounge/enviroplus'")
     ap.add_argument("--client-id", default="", help="the MQTT client identifier to use when connecting")
+    ap.add_argument("--interval", type=int, default=5, help="the duration in seconds between updates")
     return vars(ap.parse_args())
 
 
@@ -28,7 +29,7 @@ def main():
 
     while True:
         logger.update()
-        time.sleep(5)
+        time.sleep(args["interval"])
 
 
 if __name__ == "__main__":
