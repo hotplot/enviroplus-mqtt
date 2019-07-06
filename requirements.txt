@@ -1,0 +1,2 @@
+enviroplus
+paho-mqtt
