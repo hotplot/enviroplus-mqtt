@@ -1,5 +1,7 @@
 import paho.mqtt.client as mqtt
 
+import ltr559
+
 from bme280 import BME280
 from pms5003 import PMS5003
 from enviroplus import gas
@@ -38,6 +40,9 @@ class EnvLogger:
 
 
     def update(self):
+        self.publish("proximity", ltr559.get_proximity())
+        self.publish("lux", ltr559.get_lux())
+
         self.publish("temperature", self.bme280.get_temperature())
         self.publish("pressure", self.bme280.get_pressure())
         self.publish("humidity", self.bme280.get_humidity())
