@@ -1,4 +1,4 @@
-import argparse, time
+import argparse, time, sys
 
 from logger import EnvLogger
 
@@ -31,6 +31,9 @@ def main():
     )
 
     while True:
+        if logger.connection_error is not None:
+            sys.exit(f"Connecting to the MQTT server failed: {logger.connection_error}")
+        
         logger.update()
         time.sleep(args["interval"])
 

@@ -12,13 +12,28 @@ class EnvLogger:
 
         self.prefix = prefix
 
+        self.connection_error = None
         self.client = mqtt.Client(client_id=client_id)
+        self.client.on_connect = self.__on_connect
         self.client.username_pw_set(username, password)
         self.client.connect(host, port)
+    
+
+    def __on_connect(self, client, userdata, flags, rc):
+        errors = {
+            1: "incorrect MQTT protocol version",
+            2: "invalid MQTT client identifier",
+            3: "server unavailable",
+            4: "bad username or password",
+            5: "connection refused"
+        }
+
+        if rc > 0:
+            self.connection_error = errors.get(rc, "unknown error")
 
 
     def publish(self, topic, value):
-        topic = self.prefix + "/" + topic
+        topic = self.prefix.strip("/") + "/" + topic
         self.client.publish(topic, str(value))
 
 
