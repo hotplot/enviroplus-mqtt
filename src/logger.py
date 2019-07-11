@@ -6,9 +6,11 @@ from bme280 import BME280
 from pms5003 import PMS5003
 from enviroplus import gas
 
+import collections, traceback
+
 
 class EnvLogger:
-    def __init__(self, client_id, host, port, username, password, prefix, use_pms5003):
+    def __init__(self, client_id, host, port, username, password, prefix, use_pms5003, num_samples):
         self.bme280 = BME280()
         self.pms5003 = use_pms5003 and PMS5003() or None
 
@@ -19,6 +21,9 @@ class EnvLogger:
         self.client.on_connect = self.__on_connect
         self.client.username_pw_set(username, password)
         self.client.connect(host, port)
+
+        self.num_samples = num_samples
+        self.samples = collections.deque(maxlen=num_samples)
     
 
     def __on_connect(self, client, userdata, flags, rc):
@@ -76,8 +81,12 @@ class EnvLogger:
 
 
     def update(self, publish_readings=True):
-        readings = self.take_readings()
+        self.samples.append(self.take_readings())
+
         if publish_readings:
-            for (topic, value) in readings.items():
-                self.publish(topic, value)
+            for topic in self.samples[0].keys():
+                value_sum = sum([d[topic] for d in self.samples])
+                value_avg = value_sum / len(self.samples)
+                self.publish(topic, value_avg)
+
         self.client.loop()

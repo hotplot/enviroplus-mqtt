@@ -21,6 +21,7 @@ def parse_args():
 def main():
     args = parse_args()
 
+    # Initialise the logger
     logger = EnvLogger(
         client_id=args["client_id"],
         host=args["host"],
@@ -29,15 +30,28 @@ def main():
         password=args["password"],
         prefix=args["prefix"],
         use_pms5003=args["use_pms5003"],
+        num_samples=args["interval"]
     )
 
+    # Take readings without publishing them for the specified delay period,
+    # to allow the sensors time to warm up and stabilise
     publish_start_time = time.time() + args["delay"]
+    while time.time() < publish_start_time:
+        logger.update(publish_readings=False)
+        time.sleep(1)
+
+    # Start taking readings and publishing them at the specified interval
+    next_publish_time = time.time() + args["interval"]
     while True:
         if logger.connection_error is not None:
             sys.exit(f"Connecting to the MQTT server failed: {logger.connection_error}")
         
-        logger.update(publish_readings=time.time() > publish_start_time)
-        time.sleep(args["interval"])
+        should_publish = time.time() >= next_publish_time
+        if should_publish:
+            next_publish_time += args["interval"]
+        
+        logger.update(publish_readings=should_publish)
+        time.sleep(1)
 
 
 if __name__ == "__main__":
