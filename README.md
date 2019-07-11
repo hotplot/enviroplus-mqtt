@@ -39,27 +39,30 @@
 
 - The MQTT host, port, username, password and client ID can be specified.
 - The update interval can be specified, and defaults to 5 seconds.
+- The initial delay before publishing readings can be specified, and defaults to 15 seconds.
 - If you are using a PMS5003 sensor, enable it by passing the `--use-pms5003` flag.
 
-       usage: main.py -h HOST [-p PORT] [-U USERNAME] [-P PASSWORD] [--prefix PREFIX]
-               [--client-id CLIENT_ID] [--interval INTERVAL] [--use-pms5003]
-               [--help]
+        usage: main.py -h HOST [-p PORT] [-U USERNAME] [-P PASSWORD] [--prefix PREFIX]
+                    [--client-id CLIENT_ID] [--interval INTERVAL] [--delay DELAY]
+                    [--use-pms5003] [--help]
 
-       optional arguments:
-       -h HOST, --host HOST  the MQTT host to connect to
-       -p PORT, --port PORT  the port on the MQTT host to connect to
-       -U USERNAME, --username USERNAME
-                               the MQTT username to connect with
-       -P PASSWORD, --password PASSWORD
-                               the password to connect with
-       --prefix PREFIX       the topic prefix to use when publishing readings, i.e.
-                               'lounge/enviroplus'
-       --client-id CLIENT_ID
-                               the MQTT client identifier to use when connecting
-       --interval INTERVAL   the duration in seconds between updates
-       --use-pms5003         if set, PM readings will be taken from the PMS5003
-                               sensor
-       --help                print this help message and exit
+        optional arguments:
+        -h HOST, --host HOST  the MQTT host to connect to
+        -p PORT, --port PORT  the port on the MQTT host to connect to
+        -U USERNAME, --username USERNAME
+                            the MQTT username to connect with
+        -P PASSWORD, --password PASSWORD
+                            the password to connect with
+        --prefix PREFIX       the topic prefix to use when publishing readings, i.e.
+                            'lounge/enviroplus'
+        --client-id CLIENT_ID
+                            the MQTT client identifier to use when connecting
+        --interval INTERVAL   the duration in seconds between updates
+        --delay DELAY         the duration in seconds to allow the sensors to
+                            stabilise before starting to publish readings
+        --use-pms5003         if set, PM readings will be taken from the PMS5003
+                            sensor
+        --help                print this help message and exit
 
 ## Published Topics
 
