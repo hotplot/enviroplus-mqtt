@@ -34,6 +34,24 @@ class EnvLogger:
             self.connection_error = errors.get(rc, "unknown error")
 
 
+    def __take_pm_readings(self):
+        if self.pms5003 is None:
+            return {}
+    
+        try:
+            pm_data = self.pms5003.read()
+            return {
+                "particulate/1.0": pm_data.pm_ug_per_m3(1.0),
+                "particulate/2.5": pm_data.pm_ug_per_m3(2.5),
+                "particulate/10.0": pm_data.pm_ug_per_m3(10),
+            }
+        except:
+            print("Failed to read from PMS5003. Resetting sensor.")
+            traceback.print_exc()
+            self.pms5003.reset()
+            return {}
+
+
     def take_readings(self):
         gas_data = gas.read_all()
         readings = {
@@ -47,11 +65,7 @@ class EnvLogger:
             "gas/nh3": gas_data.nh3,
         }
 
-        if self.pms5003 is not None:
-            pm_data = self.pms5003.read()
-            readings["particulate/1.0"] = pm_data.pm_ug_per_m3(1.0)
-            readings["particulate/2.5"] = pm_data.pm_ug_per_m3(2.5)
-            readings["particulate/10.0"] = pm_data.pm_ug_per_m3(10)
+        readings.update(self.__take_pm_readings())
         
         return readings
 
