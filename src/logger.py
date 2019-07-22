@@ -22,7 +22,6 @@ class EnvLogger:
         self.client.username_pw_set(username, password)
         self.client.connect(host, port)
 
-        self.num_samples = num_samples
         self.samples = collections.deque(maxlen=num_samples)
     
 
