@@ -50,9 +50,9 @@ class EnvLogger:
         try:
             pm_data = self.pms5003.read()
             return {
-                "particulate/1.0": pm_data.pm_ug_per_m3(1.0),
-                "particulate/2.5": pm_data.pm_ug_per_m3(2.5),
-                "particulate/10.0": pm_data.pm_ug_per_m3(10),
+                "particulate/1.0": pm_data.pm_ug_per_m3(1.0,atmospheric_environment=True),
+                "particulate/2.5": pm_data.pm_ug_per_m3(2.5,atmospheric_environment=True),
+                "particulate/10.0": pm_data.pm_ug_per_m3(None,atmospheric_environment=True),
             }
         except:
             print("Failed to read from PMS5003. Resetting sensor.")
