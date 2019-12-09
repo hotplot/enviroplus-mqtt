@@ -1,3 +1,5 @@
+import collections, threading, traceback
+
 import paho.mqtt.client as mqtt
 
 try:
@@ -11,13 +13,10 @@ from bme280 import BME280
 from pms5003 import PMS5003
 from enviroplus import gas
 
-import collections, traceback
-
 
 class EnvLogger:
     def __init__(self, client_id, host, port, username, password, prefix, use_pms5003, num_samples):
         self.bme280 = BME280()
-        self.pms5003 = use_pms5003 and PMS5003() or None
 
         self.prefix = prefix
 
@@ -28,6 +27,12 @@ class EnvLogger:
         self.client.connect(host, port)
 
         self.samples = collections.deque(maxlen=num_samples)
+        self.latest_pms_readings = {}
+
+        if use_pms5003:
+            self.pm_thread = threading.Thread(target=self.__read_pms_continuously)
+            self.pm_thread.daemon = True
+            self.pm_thread.start()
     
 
     def __on_connect(self, client, userdata, flags, rc):
@@ -43,22 +48,27 @@ class EnvLogger:
             self.connection_error = errors.get(rc, "unknown error")
 
 
-    def __take_pm_readings(self):
-        if self.pms5003 is None:
-            return {}
-    
-        try:
-            pm_data = self.pms5003.read()
-            return {
-                "particulate/1.0": pm_data.pm_ug_per_m3(1.0,atmospheric_environment=True),
-                "particulate/2.5": pm_data.pm_ug_per_m3(2.5,atmospheric_environment=True),
-                "particulate/10.0": pm_data.pm_ug_per_m3(None,atmospheric_environment=True),
-            }
-        except:
-            print("Failed to read from PMS5003. Resetting sensor.")
-            traceback.print_exc()
-            self.pms5003.reset()
-            return {}
+    def __read_pms_continuously(self):
+        """Continuously reads from the PMS5003 sensor and stores the most recent values
+        in `self.latest_pms_readings` as they become available.
+
+        If the sensor is not polled continously then readings are buffered on the PMS5003,
+        and over time a significant delay is introduced between changes in PM levels and 
+        the corresponding change in reported levels."""
+
+        pms = PMS5003()
+        while True:
+            try:
+                pm_data = pms.read()
+                self.latest_pms_readings = {
+                    "particulate/1.0": pm_data.pm_ug_per_m3(1.0, atmospheric_environment=True),
+                    "particulate/2.5": pm_data.pm_ug_per_m3(2.5, atmospheric_environment=True),
+                    "particulate/10.0": pm_data.pm_ug_per_m3(None, atmospheric_environment=True),
+                }
+            except:
+                print("Failed to read from PMS5003. Resetting sensor.")
+                traceback.print_exc()
+                pms.reset()
 
 
     def take_readings(self):
@@ -74,7 +84,7 @@ class EnvLogger:
             "gas/nh3": gas_data.nh3,
         }
 
-        readings.update(self.__take_pm_readings())
+        readings.update(self.latest_pms_readings)
         
         return readings
 
