@@ -41,7 +41,9 @@ def main():
         time.sleep(1)
 
     # Start taking readings and publishing them at the specified interval
+    next_sample_time = time.time()
     next_publish_time = time.time() + args["interval"]
+
     while True:
         if logger.connection_error is not None:
             sys.exit(f"Connecting to the MQTT server failed: {logger.connection_error}")
@@ -51,7 +53,10 @@ def main():
             next_publish_time += args["interval"]
         
         logger.update(publish_readings=should_publish)
-        time.sleep(1)
+
+        next_sample_time += 1
+        sleep_duration = max(next_sample_time - time.time(), 0)
+        time.sleep(sleep_duration)
 
 
 if __name__ == "__main__":
