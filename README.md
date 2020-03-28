@@ -18,7 +18,7 @@
        After=network.target
    
        [Service]
-       ExecStart=/usr/bin/python3 -u /usr/src/enviroplus-mqtt/src/main.py <arguments>
+       ExecStart=/usr/bin/python3 /usr/src/enviroplus-mqtt/src/main.py <arguments>
        WorkingDirectory=/usr/src/enviroplus-mqtt
        StandardOutput=inherit
        StandardError=inherit
