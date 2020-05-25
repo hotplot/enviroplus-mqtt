@@ -57,6 +57,8 @@ def main():
         next_sample_time += 1
         sleep_duration = max(next_sample_time - time.time(), 0)
         time.sleep(sleep_duration)
+    
+    logger.destroy()
 
 
 if __name__ == "__main__":

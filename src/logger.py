@@ -25,6 +25,7 @@ class EnvLogger:
         self.client.on_connect = self.__on_connect
         self.client.username_pw_set(username, password)
         self.client.connect(host, port)
+        self.client.loop_start()
 
         self.samples = collections.deque(maxlen=num_samples)
         self.latest_pms_readings = {}
@@ -103,4 +104,7 @@ class EnvLogger:
                 value_avg = value_sum / len(self.samples)
                 self.publish(topic, value_avg)
 
-        self.client.loop()
+
+    def destroy(self):
+        self.client.disconnect()
+        self.client.loop_stop()
