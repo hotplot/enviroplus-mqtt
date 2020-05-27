@@ -62,6 +62,10 @@
                             stabilise before starting to publish readings
         --use-pms5003         if set, PM readings will be taken from the PMS5003
                             sensor
+
+        -r, --retain  tell MQTT broker to retain the last message        
+ 
+
         --help                print this help message and exit
 
 ## Published Topics
