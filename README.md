@@ -11,7 +11,11 @@
 
        sudo git clone https://github.com/hotplot/enviroplus-mqtt /usr/src/enviroplus-mqtt
 
-5) Add a new file at `/etc/systemd/system/envlogger.service` with the following content:
+5) Install [Paho MQTT tools](https://www.eclipse.org/paho/):
+
+       pip3 install paho-mqtt
+
+6) Add a new file at `/etc/systemd/system/envlogger.service` with the following content:
 
        [Unit]
        Description=Enviro+ MQTT Logger
