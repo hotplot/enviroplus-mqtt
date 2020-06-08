@@ -15,7 +15,7 @@ from enviroplus import gas
 
 
 class EnvLogger:
-    def __init__(self, client_id, host, port, username, password, prefix, use_pms5003, num_samples):
+    def __init__(self, client_id, host, port, username, password, prefix, use_pms5003, num_samples, retain):
         self.bme280 = BME280()
 
         self.prefix = prefix
@@ -34,6 +34,7 @@ class EnvLogger:
             self.pm_thread = threading.Thread(target=self.__read_pms_continuously)
             self.pm_thread.daemon = True
             self.pm_thread.start()
+        self.retain = retain
     
 
     def __on_connect(self, client, userdata, flags, rc):
@@ -90,9 +91,9 @@ class EnvLogger:
         return readings
 
 
-    def publish(self, topic, value):
+    def publish(self, topic, value, retain):
         topic = self.prefix.strip("/") + "/" + topic
-        self.client.publish(topic, str(value))
+        self.client.publish(topic, str(value), retain=retain)
 
 
     def update(self, publish_readings=True):
@@ -102,7 +103,7 @@ class EnvLogger:
             for topic in self.samples[0].keys():
                 value_sum = sum([d[topic] for d in self.samples])
                 value_avg = value_sum / len(self.samples)
-                self.publish(topic, value_avg)
+                self.publish(topic, value_avg, retain=self.retain)
 
 
     def destroy(self):
