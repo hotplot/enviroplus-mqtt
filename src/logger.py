@@ -73,17 +73,40 @@ class EnvLogger:
 
 
     def take_readings(self):
-        gas_data = gas.read_all()
-        readings = {
-            "proximity": ltr559.get_proximity(),
-            "lux": ltr559.get_lux(),
-            "temperature": self.bme280.get_temperature(),
-            "pressure": self.bme280.get_pressure(),
-            "humidity": self.bme280.get_humidity(),
-            "gas/oxidising": gas_data.oxidising,
-            "gas/reducing": gas_data.reducing,
-            "gas/nh3": gas_data.nh3,
-        }
+        readings = {}
+
+        try:
+            readings["proximity"] = ltr559.get_proximity()
+        except OSError:
+            print("Error reading proximity sensor data")
+
+        try:
+            readings["lux"] = ltr559.get_lux()
+        except OSError:
+            print("Error reading lux sensor data")
+
+        try:
+            readings["temperature"] = self.bme280.get_temperature()
+        except OSError:
+            print("Error reading temperature sensor data")
+
+        try:
+            readings["pressure"] = self.bme280.get_pressure()
+        except OSError:
+            print("Error reading pressure sensor data")
+
+        try:
+            readings["humidity"] = self.bme280.get_humidity()
+        except OSError:
+            print("Error reading humidity sensor data")
+
+        try:
+            gas_data = gas.read_all()
+            readings["gas/oxidising"] = gas_data.oxidising
+            readings["gas/reducing"] = gas_data.reducing
+            readings["gas/nh3"] = gas_data.nh3
+        except OSError:
+            print("Error reading gas sensor data")
 
         readings.update(self.latest_pms_readings)
         
