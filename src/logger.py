@@ -123,9 +123,12 @@ class EnvLogger:
 
         if publish_readings:
             for topic in self.samples[0].keys():
-                value_sum = sum([d[topic] for d in self.samples])
-                value_avg = value_sum / len(self.samples)
-                self.publish(topic, value_avg)
+                try:
+                    value_sum = sum([d[topic] for d in self.samples])
+                    value_avg = value_sum / len(self.samples)
+                    self.publish(topic, value_avg)
+                except KeyError:
+                    print(f"Error publishing data for {topic}")
 
 
     def destroy(self):
