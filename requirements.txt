@@ -1,2 +1,2 @@
-enviroplus
-paho-mqtt
+enviroplus==0.0.6
+paho-mqtt==1.6.1
